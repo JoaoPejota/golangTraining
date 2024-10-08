@@ -10,7 +10,7 @@ import (
 
 var DB *gorm.DB
 
-func main() {
+func Connect() {
     dbHost := os.Getenv("DB_HOST")
     dbUser := os.Getenv("DB_USER")
     dbPassword := os.Getenv("DB_PASSWORD")
