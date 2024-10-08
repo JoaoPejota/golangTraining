@@ -1,37 +1,22 @@
-version: '3.8'
-
+version: '3'
 services:
-  app:
-    build: .
-    container_name: go-app
-    ports:
-      - "8080:8080"
+  postgres:
+    image: "postgres"
     environment:
-      DB_HOST: mysql
-      DB_USER: root
-      DB_PASSWORD: root
-      DB_NAME: mydb
-    depends_on:
-      - mysql
-    networks:
-      - mynetwork
-
-  mysql:
-    image: mysql:8.0
-    container_name: mysql-db
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mydb
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=root      
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - db_data:/var/lib/mysql
-    networks:
-      - mynetwork
+      - ./postgres-data:/var/lib/postgresql/data  
 
-networks:
-  mynetwork:
-    driver: bridge
-
-volumes:
-  db_data:
+  pgadmin-compose:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "gui@alura.com"
+      PGADMIN_DEFAULT_PASSWORD: "123456"
+    ports:
+      - "54321:80"
+    depends_on:
+      - postgres
