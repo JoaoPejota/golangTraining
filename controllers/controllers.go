@@ -3,40 +3,61 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/JoaoPejota/golangTraining/database"
 	"github.com/JoaoPejota/golangTraining/models"
 	"github.com/gin-gonic/gin"
 )
 
-
-var games = []models.Game{
-    {ID: "1", Title: "Valorant", Type: "Fantasy/Action", Price: 20.99},
-    {ID: "2", Title: "Counter Strike", Type: "War/Action", Price: 79.99},
-    {ID: "3", Title: "Elden Ring", Type: "Fantasy/RPG", Price: 199.99},
-}
-
-func GetAlbums(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, games)
-}
-
-
-func GetAlbumsById(c *gin.Context){
-	id := c.Param("id")
-
-	for _, game := range games{
-		if game.ID == id{
-			c.IndentedJSON(http.StatusOK, game)
-			return
-		}
-	}
-}
-
-func PostGames(c *gin.Context){
-	var newGame models.Game
-
-	if err := c.BindJSON(&newGame); err != nil{
+func CriarGame(c *gin.Context) {
+	var games models.Game
+	if err := c.ShouldBindJSON(&games); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error()})
 		return
 	}
+	database.DB.Create(&games)
+	c.JSON(http.StatusOK, games)
+}
 
-	games = append(games, newGame)
-	c.IndentedJSON(http.StatusCreated, games)
+func GetGame(c *gin.Context) {
+	var games []models.Game
+	database.DB.Find(&games)
+	c.JSON(http.StatusOK, games)
+}
+
+func GetGamesById(c *gin.Context) {
+	var game models.Game
+	id := c.Params.ByName("id")
+	database.DB.First(&game, id)
+	c.JSON(http.StatusOK, game)
+}
+
+func DeleteGame(c *gin.Context) {
+	var game models.Game
+	id := c.Params.ByName("id")
+	database.DB.Delete(&game, id)
+	c.JSON(http.StatusOK, gin.H{"data": "Aluno deletado com sucesso!"})
+}
+
+func AtualizarGame(c *gin.Context) {
+	var game models.Game
+	id := c.Params.ByName("id")
+	database.DB.First(&game, id)
+
+	if err := c.ShouldBindJSON(&game); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"NÃO DEU CERTO": "A"})
+		return
+	}
+	database.DB.Model(&game).UpdateColumns(game)
+	c.JSON(http.StatusOK, game)
+}
+
+func GetGameByDesc(c *gin.Context) {
+	var game models.Game
+
+	desc := c.Param("desc")
+	database.DB.Where(&models.Game{
+		Desc: desc}).First(&game)
+
+	c.JSON(http.StatusOK, game)
 }

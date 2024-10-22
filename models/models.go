@@ -1,9 +1,11 @@
 package models
 
+import "gorm.io/gorm"
 
-type Game struct{
-	ID string `json:"id"`
-	Title string `json:"title"`
+type Game struct {
+	gorm.Model
+	ID    string  `json:"id"`
+	Title string  `json:"title"`
 	Price float64 `json:"price"`
-	Type string `json:"type"`
+	Desc  string  `json:"desc"`
 }
